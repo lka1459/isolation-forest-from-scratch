@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import random
 
-from typing import List
+from typing import List, Dict
 from sklearn.datasets import load_iris
 
 #Load Iris as dataframe (easier to work with)
@@ -14,54 +14,74 @@ class Isolation_Tree:
     def __init__(self, df: pd.DataFrame, max_depth: int):
         self.df: pd.DataFrame = df
         self.max_depth: int = max_depth
-        self.path_length: int = 0
+        self.root: Dict[str, str]  = self.build_tree(self.df)
 
-    def pick_random_feature(self) -> str:
+
+    def random_feature(self, node_data) -> str:
         """
         Picks a random feature for the isolation tree.
         """
-        features: List[str] = [feature for feature in self.df.columns]
+        features: List[str] = [feature for feature in node_data.columns]
         rand_features: str = random.choice(features)
         return rand_features
 
-    def split_values(self, feature: str, data: pd.DataFrame) -> int:
+    def split_values(self, feature: str, data: pd.DataFrame) -> float:
          """
          Splits the instances of a node randomly.
          """
          lowest_int: np.float64  = data[feature].min()
          highest_int: np.float64 = data[feature].max()
-         rand_split: int = random.uniform(lowest_int, highest_int)
+         rand_split: float = random.uniform(lowest_int, highest_int)
          return rand_split
 
-    def parition_data(self, node_data: pd.DataFrame, select_feature: str, split_value: int):
+    def partition_data(self, node_data: pd.DataFrame, select_feature: str, split_value: float):
         """
         Partitions the data of the selected parent node into two child nodes.
         """
         left_node: pd.DataFrame = node_data[node_data[select_feature] < split_value]
         right_node: pd.DataFrame = node_data[node_data[select_feature] >= split_value]
         return left_node, right_node
-
-    def build_tree(self, node_data: pd.DataFrame, depth: int = 0) -> None:
+                        
+    def build_tree(self, node_data: pd.DataFrame, depth: int = 0) -> Dict[str, str]:
         """
         Build a single isolation tree based on a randomly selected feature.
         """
-        if depth >= self.max_depth or len(node_data) == 1:
-            return 
+        if depth >= self.max_depth or len(node_data) <= 1:
+            return {"leaf_size": len(node_data)}
 
-        print(len(node_data))
+        rand_feature: str = self.random_feature(node_data)      
+        rand_split: float = self.split_values(rand_feature, node_data)
+        left_node, right_node = self.partition_data(node_data, rand_feature, rand_split)
 
-        rand_feature: str = self.pick_random_feature()      
-        rand_split: int = self.split_values(rand_feature, node_data)
-        left_node, right_node = self.parition_data(node_data, rand_feature, rand_split)
-        self.build_tree(left_node, depth + 1)
-        self.build_tree(right_node, depth + 1)
+        return {
+        "feature": rand_feature,
+        "split_value": rand_split,
+        "left_node": self.build_tree(left_node, depth + 1),
+        "right_node": self.build_tree(right_node, depth + 1),
+                }
+
+    def return_path_length(self, row: pd.Series) -> int:
+            """
+            Returns path length of a row.
+            """
+            node: Dict[str, str] = self.root
+            path_length: int = 0
+    
+            while "leaf_size" not in node:
+                feature = node["feature"]
+                split_value = node["split_value"]
+    
+                if row[feature] < split_value:
+                    node = node["left_node"]
+                if row[feature] >= split_value:
+                    node = node["right_node"]
+                
+                path_length += 1
+    
+            return path_length
        
+tree: Isolation_Tree = Isolation_Tree(iris_data, max_depth=6)
 
-tree: Isolation_Tree = Isolation_Tree(iris_data, max_depth=3)
+em = tree.e(iris_data.iloc[1])
 
-d = tree.pick_random_feature()
-e = tree.split_values(d, iris_data)
-
-b = tree.build_tree(iris_data)
-
-print(b)
+print(em)

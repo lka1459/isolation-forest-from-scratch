@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-25
+
+### Added
+- Added return_path_length.
+
+### Changed
+- Changed build_tree to return nested tree dictionaries with leaf sizes, features, split values, and child nodes.
+- Renamed pick_random_feature to random_feature
+- Renamed parition_data to partition_data.
+- Replaced path_length with a stored tree root.
+
 ## [0.1.1] - 2026-09-23
 
 ### Added
