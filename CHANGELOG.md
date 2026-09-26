@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-26
+
+### Added
+- Added [`IsolationForest`](src/isolation_forest.py)
+- Added `average_path_length()` to calculate a row's average corrected path length across the trees.
+- Added `anomaly_score()` to convert the average path length into a normalised anomaly score.
+- Added an expected path length calculation for leaves containing multiple rows.
+- Added a stopping condition when no features vary within a node.
+
+### Changed
+- Updated `return_path_length()` to add the leaf-size correction to the depth travelled by a row.
+- Updated random feature selection to use only features that vary within the current node.
+- Updated path traversal so each row follows exactly one child at each split.
+
 ## [0.2.1] - 2026-09-25
 
 ### Added

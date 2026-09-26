@@ -98,9 +98,3 @@ class Isolation_Tree:
         return expected_length
        
 tree: Isolation_Tree = Isolation_Tree(iris_data, max_depth=6)
-
-em = tree.return_path_length(iris_data.iloc[0])
-z = tree.expected_extra_length(20)
-
-lengths = iris_data.apply(tree.return_path_length, axis=1)
-print(lengths.describe())
