@@ -21,7 +21,7 @@ class Isolation_Tree:
         """
         Picks a random feature for the isolation tree.
         """
-        features: List[str] = [feature for feature in node_data.columns]
+        features: List[str] = [feature for feature in node_data.columns if node_data[feature].nunique() > 1]
         rand_features: str = random.choice(features)
         return rand_features
 
@@ -46,7 +46,7 @@ class Isolation_Tree:
         """
         Build a single isolation tree based on a randomly selected feature.
         """
-        if depth >= self.max_depth or len(node_data) <= 1:
+        if depth >= self.max_depth or len(node_data) <= 1  or all(node_data[col].nunique() <= 1 for col in node_data.columns):
             return {"leaf_size": len(node_data)}
 
         rand_feature: str = self.random_feature(node_data)      
@@ -60,7 +60,7 @@ class Isolation_Tree:
         "right_node": self.build_tree(right_node, depth + 1),
                 }
 
-    def return_path_length(self, row: pd.Series) -> int:
+    def return_path_length(self, row: pd.Series) -> float:
             """
             Returns path length of a row.
             """
@@ -68,20 +68,39 @@ class Isolation_Tree:
             path_length: int = 0
     
             while "leaf_size" not in node:
-                feature = node["feature"]
-                split_value = node["split_value"]
+                feature: str = node["feature"]
+                split_value: int = node["split_value"]
     
                 if row[feature] < split_value:
                     node = node["left_node"]
-                if row[feature] >= split_value:
+                else:
                     node = node["right_node"]
                 
                 path_length += 1
+
+            leaf_size: int = node["leaf_size"]
     
-            return path_length
+            return path_length + self.expected_extra_length(leaf_size)
+
+    def expected_extra_length(self, n: int) -> float:
+        """
+        Calculates the extra length of a path length based on leaf nodes size.
+        """
+        if n <= 1:
+            return 0
+
+        if n == 2:
+            return 1
+
+        harmonic: float = sum(1 / i for i in range(1, n))
+        expected_length: float = (2 * harmonic) - (2 * (n - 1)/ n)
+        
+        return expected_length
        
 tree: Isolation_Tree = Isolation_Tree(iris_data, max_depth=6)
 
-em = tree.e(iris_data.iloc[1])
+em = tree.return_path_length(iris_data.iloc[0])
+z = tree.expected_extra_length(20)
 
-print(em)
+lengths = iris_data.apply(tree.return_path_length, axis=1)
+print(lengths.describe())

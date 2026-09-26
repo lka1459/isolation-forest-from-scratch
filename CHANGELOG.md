@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-25
+
+### Added
+- Added an expected path length calculation for leaves containing multiple rows.
+- Added a stopping condition when no features vary within a node.
+
+### Changed
+- Updated return_path_length() to add the leaf-size correction to the depth travelled by a row.
+- Updated random feature selection to use only features that vary within the current node.
+- Updated path traversal so each row follows exactly one child at each split.
+
 ## [0.2.0] - 2026-09-25
 
 ### Added
