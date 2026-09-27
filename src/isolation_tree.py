@@ -3,12 +3,6 @@ import pandas as pd
 import random
 
 from typing import List, Dict
-from sklearn.datasets import load_iris
-
-#Load Iris as dataframe (easier to work with)
-iris = load_iris(as_frame=True)
-
-iris_data: pd.DataFrame = iris.data
 
 class Isolation_Tree:
     def __init__(self, df: pd.DataFrame, max_depth: int):
@@ -17,7 +11,7 @@ class Isolation_Tree:
         self.root: Dict[str, str]  = self.build_tree(self.df)
 
 
-    def random_feature(self, node_data) -> str:
+    def random_feature(self, node_data: pd.DataFrame) -> str:
         """
         Picks a random feature for the isolation tree.
         """
@@ -46,7 +40,11 @@ class Isolation_Tree:
         """
         Build a single isolation tree based on a randomly selected feature.
         """
-        if depth >= self.max_depth or len(node_data) <= 1  or all(node_data[col].nunique() <= 1 for col in node_data.columns):
+        if (
+            depth >= self.max_depth 
+            or len(node_data) <= 1  
+            or all(node_data[col].nunique() <= 1 for col in node_data.columns)
+            ):
             return {"leaf_size": len(node_data)}
 
         rand_feature: str = self.random_feature(node_data)      

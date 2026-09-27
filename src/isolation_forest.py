@@ -1,22 +1,15 @@
 import numpy as np
 import pandas as pd
-import random
 
-from typing import List, Dict
-from sklearn.datasets import load_iris
+from typing import List
 
 from isolation_tree import Isolation_Tree
 
-#Load Iris as dataframe (easier to work with)
-iris = load_iris(as_frame=True)
-
-iris_data: pd.DataFrame = iris.data
-
-class IsolationForest:
-    def __init__(self, df, sample_size, n_estimators, max_depth):
-        self.df = df
-        self.sample_size = sample_size
-        self.n_estimators = n_estimators
+class Isolation_Forest:
+    def __init__(self, df: pd.DataFrame, sample_size: int, n_estimators: int, max_depth: int):
+        self.df: pd.DataFrame = df
+        self.sample_size: int = sample_size
+        self.n_estimators: int = n_estimators
         self.trees: List[Isolation_Tree] = self.build_ensemble(df, max_depth)
 
     def random_sample(self, data_set: pd.DataFrame) -> List[pd.DataFrame]:
@@ -37,11 +30,11 @@ class IsolationForest:
 
         return sample_list
 
-    def build_ensemble(self, data_set, max_depth: int) -> List[Isolation_Tree]:
+    def build_ensemble(self, data_set: pd.DataFrame, max_depth: int) -> List[Isolation_Tree]:
         """
         Builds an Isolation Tree for each sampled dataset.
         """
-        sample_list = self.random_sample(data_set)
+        sample_list: List[pd.DataFrame] = self.random_sample(data_set)
         tree_list: List[Isolation_Tree] = []
 
         for sample in sample_list:
@@ -59,24 +52,17 @@ class IsolationForest:
         for tree in self.trees:
             lengths.append(tree.return_path_length(row))
 
-        average = sum(lengths) / len(lengths)
+        average: float = sum(lengths) / len(lengths)
         
         return average
 
-    def anomaly_score(self, row: pd.Series):
+    def anomaly_score(self, row: pd.Series) -> float:
         """
         Converts average into an anomaly score.
         """
-        c_sample = self.trees[0].expected_extra_length(self.sample_size)
-        average = self.average_path_length(row)
+        c_sample: float = self.trees[0].expected_extra_length(self.sample_size)
+        average: float = self.average_path_length(row)
 
-        ratio = 2 ** (-average / c_sample)
+        ratio: float = 2 ** (-average / c_sample)
 
         return ratio
-
-
-tree: IsolationForest = IsolationForest(iris_data, sample_size=100, n_estimators=10, max_depth=3)
-
-e = tree.average_path_length(iris_data.iloc[0])
-z = tree.anomaly_score(iris_data.iloc[10])
-
