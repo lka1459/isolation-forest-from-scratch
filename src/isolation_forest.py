@@ -21,7 +21,9 @@ class Isolation_Forest:
 
         for _ in range(0, self.n_estimators):
             samples: List[pd.Series] = []
-            df_shuffled: pd.DataFrame = data_set.sample(frac=1).reset_index(drop=True)
+            df_shuffled: pd.DataFrame = data_set.sample(frac=1,
+                                                        random_state=42 + len(sample_list)
+                                                        ).reset_index(drop=True)
             for j in range(0, sample_size):
                 samples.append(df_shuffled.iloc[j])
 

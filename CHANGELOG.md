@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-27
+
+### Added
+- Added [`notebook.ipynb`](notebooks/notebook.ipynb)
+- Added UNSW-NB15 experiments using benign flows for training and labelled flows for evaluation.
+- Added a comparison with scikit-learn's `IsolationForest`.
+- Added validation and held-out test evaluation using ROC-AUC, average precision, confusion matrices, precision and recall.
+- Added validation-based alert thresholds for both models.
+
+### Changed
+- Made tree sampling and random splits reproducible with fixed seeds.
+- Updated .gitignore
+- Updated [README.md](README.md)
+
 ## [0.3.0] - 2026-09-26
 
 ### Added
